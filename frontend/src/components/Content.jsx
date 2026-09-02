@@ -1,10 +1,6 @@
-import Login from './Login.jsx';
 import Router from './Router.jsx';
-import { useSession } from './Session.jsx';
 
 export default function Content() {
-  const session = useSession();
-
   return (
     <div
       className="content"
@@ -13,9 +9,7 @@ export default function Content() {
         overflow: 'auto',
       }}
     >
-      {!session.isLoggedIn ?
-        <Login />
-      : <Router /> }
+      <Router />
     </div>
   );
 }
