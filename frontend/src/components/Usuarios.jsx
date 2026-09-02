@@ -12,7 +12,8 @@ export default function Usuarios() {
 
   useEffect(() => {
     userService.get()
-      .then(setUsuarios);
+      .then(setUsuarios)
+      .catch(err => snackbar.enqueue(`Error: ${err.message}`, { variant: 'error' }));
   }, []);
 
   function deleteUsuario(uuid) {
@@ -23,9 +24,8 @@ export default function Usuarios() {
         onYes: () => {
           userService.deleteUser(uuid)
             .then(() => {
-              snackbar.enqueue('Usuario eliminado', { variant: 'success' });4
-              userService.get()
-                .then(setUsuarios);
+              snackbar.enqueue('Usuario eliminado', { variant: 'success' });
+              userService.get().then(setUsuarios);
             })
             .catch(err => {
               snackbar.enqueue(`Error al eliminar el usuario: ${err.message}`, { variant: 'error' });
@@ -37,44 +37,55 @@ export default function Usuarios() {
     );
   }
 
-  return <>
-    <h3>Usuarios</h3>
-    <Button>
-      <Link to={`/usuario`}>
-        Agregar
-      </Link>
-    </Button>
-    <table className="data-table"
-    >
-      <thead>
-        <tr>
-          <th>Nombre de usuario</th>
-          <th>Nombre completo</th>
-          <th>Email</th>
-          <th>Roles</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {usuarios.map(usuario => <tr key={usuario.uuid}>
-          <td>{usuario.username}</td>
-          <td>{usuario.fullName}</td>
-          <td>{usuario.email}</td>
-          <td>{usuario.roles.join(", ")}</td>
-          <td>
-            <Button>
-              <Link to={`/usuario/${usuario.uuid}`}>
-                Editar
-              </Link>
-            </Button>
-            <Button
-              onClick={() => deleteUsuario(usuario.uuid)}
-            >
-              Eliminar
-            </Button>
-          </td>
-        </tr>)}
-      </tbody>
-    </table>
-  </>;
+  return (
+    <div style={{ padding: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3>Gestión de Usuarios y Personal</h3>
+        <Button>
+          <Link to="/usuario" style={{ color: 'inherit', textDecoration: 'none' }}>
+            + Nuevo Usuario
+          </Link>
+        </Button>
+      </div>
+
+      <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ background: '#333', color: '#fff' }}>
+            <th style={{ padding: '8px' }}>Usuario</th>
+            <th style={{ padding: '8px' }}>Nombre completo</th>
+            <th style={{ padding: '8px' }}>Email</th>
+            <th style={{ padding: '8px' }}>Teléfono</th>
+            <th style={{ padding: '8px' }}>Roles</th>
+            <th style={{ padding: '8px' }}>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.map(u => (
+            <tr key={u.uuid} style={{ borderBottom: '1px solid #444' }}>
+              <td style={{ padding: '8px' }}>{u.username}</td>
+              <td style={{ padding: '8px' }}>{u.fullName}</td>
+              <td style={{ padding: '8px' }}>{u.email}</td>
+              <td style={{ padding: '8px' }}>{u.phone || '-'}</td>
+              <td style={{ padding: '8px' }}>{u.roles?.join(', ')}</td>
+              <td style={{ padding: '8px' }}>
+                <Button style={{ marginRight: '0.5rem' }}>
+                  <Link to={`/usuario/${u.uuid}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                    Editar
+                  </Link>
+                </Button>
+                <Button onClick={() => deleteUsuario(u.uuid)}>
+                  Eliminar
+                </Button>
+              </td>
+            </tr>
+          ))}
+          {usuarios.length === 0 && (
+            <tr>
+              <td colSpan="6" style={{ textAlign: 'center', padding: '1rem' }}>No hay usuarios registrados.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 }

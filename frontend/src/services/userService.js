@@ -4,6 +4,10 @@ export async function get(query) {
   return await api.getJson('/user', query);
 }
 
+export async function getMe() {
+  return await api.getJson('/user/me');
+}
+
 export async function post(body, options) {
   return await api.post('/user', body, options);
 }

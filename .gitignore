@@ -1,1 +1,24 @@
+# Environment & Local secrets
 backend/config.local.js
+.env
+*.local
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs & Expo
+dist/
+**/dist/
+.expo/
+**/.expo/
+
+# Logs & temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db

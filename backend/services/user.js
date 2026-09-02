@@ -8,9 +8,14 @@ export class UserService {
     return (await UserModel.find({ username }))[0];
   }
 
+  static async getSingleOrNullByUuid(uuid) {
+    const UserModel = getDependency('UserModel');
+    return (await UserModel.find({ uuid }))[0];
+  }
+
   static async get(filter) {
     const UserModel = getDependency('UserModel');
-    return await UserModel.find(filter);
+    return await UserModel.find(filter || {});
   }
 
   static async create(user) {
@@ -27,11 +32,11 @@ export class UserService {
     }
 
     if (user.roles && !Array.isArray(user.roles)) {
-      throw new InvalidArgumentException('El parámetro roles dbe ser una lista.');
-    }    
-    
+      throw new InvalidArgumentException('El parámetro roles debe ser una lista.');
+    }
+
     const UserModel = getDependency('UserModel');
-    const existingUser = await  UserModel.find({ username: user.username });
+    const existingUser = await UserModel.find({ username: user.username });
     if (existingUser.length > 0) {
       throw new InvalidArgumentException('Ese usuario ya existe.');
     }
@@ -40,8 +45,11 @@ export class UserService {
       user.hashedPassword = bcrypt.hashSync(user.password, 10);
       delete user.password;
     }
-    
+
     user.uuid = crypto.randomUUID();
+    if (!user.roles || user.roles.length === 0) {
+      user.roles = ['client']; // Rol por defecto si se autoregistra
+    }
 
     const newUser = new UserModel(user);
     await newUser.save();
@@ -66,13 +74,20 @@ export class UserService {
       throw new InvalidArgumentException('Falta el parámetro uuid.');
     }
 
+    if (data.password) {
+      data.hashedPassword = bcrypt.hashSync(data.password, 10);
+      delete data.password;
+    }
+
     const UserModel = getDependency('UserModel');
     const user = await UserModel.findOneAndUpdate(
       { uuid },
       { $set: data },
+      { new: true }
     );
     if (!user) {
       throw new InvalidArgumentException('Usuario no encontrado.');
     }
+    return user;
   }
 }

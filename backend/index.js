@@ -1,7 +1,7 @@
 import express from 'express';
 import config from './config.js';
 import mongoose from 'mongoose';
-import configureDependencies from './configure_dpendencies.js';
+import configureDependencies from './configure_dependencies.js';
 import configureMiddlewares from './middlewares/configure_middlewares.js';
 
 if (!config.jwtKey) {
@@ -12,14 +12,13 @@ cree un archivo config.local.js según se especifica en config.js.`);
 
 mongoose.connect(config.dbConnection)
   .then(() => console.log('Conexión exitosa a MongoDB'))
-  .catch(error => console.error('Error al conectar:', error));
+  .catch(error => console.error('Error al conectar a MongoDB:', error));
 
 const app = express();
 const router = express.Router();
 app.use('/api', router);
 
 configureMiddlewares(router);
-
 configureDependencies();
 
 app.listen(
